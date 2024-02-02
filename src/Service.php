@@ -168,7 +168,7 @@ class Service implements ClassGenerator
         $source .= '  }' . PHP_EOL;
         $source .= '  parent::__construct($wsdl, $options);' . PHP_EOL;
 
-        $function = new PhpFunction('public', '__construct', 'array $options = array(), $wsdl = null', $source, $comment);
+        $function = new PhpFunction('public', '__construct', 'array $options = array(), $wsdl = null', '', $source, $comment);
 
         // Add the constructor
         $this->class->addFunction($function);
@@ -184,7 +184,7 @@ class Service implements ClassGenerator
                 $init[$type->getIdentifier()] = $this->config->get('namespaceName') . "\\" . $type->getPhpIdentifier();
             }
         }
-        $var = new PhpVariable('private static', $name, var_export($init, true), $comment);
+        $var = new PhpVariable('private static', 'array', $name, var_export($init, true), $comment);
 
         // Add the classmap variable
         $this->class->addVariable($var);
@@ -205,7 +205,7 @@ class Service implements ClassGenerator
 
             $paramStr = $operation->getParamString($this->types);
 
-            $function = new PhpFunction('public', $name, $paramStr, $source, $comment);
+            $function = new PhpFunction('public', $name, $paramStr, $operation->getReturns(), $source, $comment);
 
             if ($this->class->functionExists($function->getIdentifier()) == false) {
                 $this->class->addFunction($function);

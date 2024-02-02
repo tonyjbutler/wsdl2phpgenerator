@@ -185,7 +185,7 @@ class TypeNode extends XmlNode
         $enums = array();
         foreach ($this->element->getElementsByTagName('enumeration') as $enum) {
             $enums[] = $enum->getAttribute('value');
-        };
+        }
         return $enums;
     }
 

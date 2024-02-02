@@ -148,7 +148,7 @@ class OutputManager
     );
     if (!empty(\$classes[\$class])) {
         include \$classes[\$class];
-    };
+    }
 }
 
 spl_autoload_register('$autoloaderName');
@@ -157,7 +157,7 @@ spl_autoload_register('$autoloaderName');
 {
 EOF;
 
-        $autoloader = new PhpFunction(null, $autoloaderName, '$class', $autoloaderSource);
+        $autoloader = new PhpFunction(null, $autoloaderName, '$class', 'void', $autoloaderSource);
         $file = new PhpFile('autoload');
         $file->addFunction($autoloader);
         $file->save($this->dir);

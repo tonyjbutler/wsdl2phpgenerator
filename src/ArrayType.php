@@ -55,7 +55,7 @@ class ArrayType extends ComplexType
         $offsetExistsDock = new PhpDocComment();
         $offsetExistsDock->setDescription($description);
         $offsetExistsDock->addParam(PhpDocElementFactory::getParam('mixed', 'offset', 'An offset to check for'));
-        $offsetExistsDock->setReturn(PhpDocElementFactory::getReturn('boolean', 'true on success or false on failure'));
+        $offsetExistsDock->setReturn(PhpDocElementFactory::getReturn('bool', 'True on success or false on failure'));
         $offsetExists = new PhpFunction(
             'public',
             'offsetExists',
@@ -63,9 +63,10 @@ class ArrayType extends ComplexType
                 array(
                     'offset' => 'mixed'
                 ),
-                false,
+                true,
                 false
             ),
+            'bool',
             '  return isset($this->' . $this->field->getName() . '[$offset]);',
             $offsetExistsDock
         );
@@ -82,9 +83,10 @@ class ArrayType extends ComplexType
                 array(
                     'offset' => 'mixed'
                 ),
-                false,
+                true,
                 false
             ),
+            $this->arrayOf,
             '  return $this->' . $this->field->getName() . '[$offset];',
             $offsetGetDock
         );
@@ -101,11 +103,12 @@ class ArrayType extends ComplexType
             $this->buildParametersString(
                 array(
                     'offset' => 'mixed',
-                    'value' => $this->arrayOf
+                    'value' => 'mixed'
                 ),
-                false,
+                true,
                 false
             ),
+            'void',
             '  if (!isset($offset)) {' . PHP_EOL .
             '    $this->' . $this->field->getName() . '[] = $value;' . PHP_EOL .
             '  } else {' . PHP_EOL .
@@ -126,9 +129,10 @@ class ArrayType extends ComplexType
                 array(
                     'offset' => 'mixed',
                 ),
-                false,
+                true,
                 false
             ),
+            'void',
             '  unset($this->' . $this->field->getName() . '[$offset]);',
             $offsetUnsetDock
         );
@@ -148,9 +152,10 @@ class ArrayType extends ComplexType
             'current',
             $this->buildParametersString(
                 array(),
-                false,
+                true,
                 false
             ),
+            $this->arrayOf,
             '  return current($this->' . $this->field->getName() . ');',
             $currentDock
         );
@@ -164,9 +169,10 @@ class ArrayType extends ComplexType
             'next',
             $this->buildParametersString(
                 array(),
-                false,
+                true,
                 false
             ),
+            'void',
             '  next($this->' . $this->field->getName() . ');',
             $nextDock
         );
@@ -180,9 +186,10 @@ class ArrayType extends ComplexType
             'key',
             $this->buildParametersString(
                 array(),
-                false,
+                true,
                 false
             ),
+            '?string',
             '  return key($this->' . $this->field->getName() . ');',
             $keyDock
         );
@@ -190,15 +197,16 @@ class ArrayType extends ComplexType
 
         $validDock = new PhpDocComment();
         $validDock->setDescription($description);
-        $validDock->setReturn(PhpDocElementFactory::getReturn('boolean', 'Return the validity of the current position'));
+        $validDock->setReturn(PhpDocElementFactory::getReturn('bool', 'Return the validity of the current position'));
         $valid = new PhpFunction(
             'public',
             'valid',
             $this->buildParametersString(
                 array(),
-                false,
+                true,
                 false
             ),
+            'bool',
             '  return $this->key() !== null;',
             $validDock
         );
@@ -212,9 +220,10 @@ class ArrayType extends ComplexType
             'rewind',
             $this->buildParametersString(
                 array(),
-                false,
+                true,
                 false
             ),
+            'void',
             '  reset($this->' . $this->field->getName() . ');',
             $rewindDock
         );
@@ -228,15 +237,16 @@ class ArrayType extends ComplexType
 
         $countDock = new PhpDocComment();
         $countDock->setDescription($description);
-        $countDock->setReturn(PhpDocElementFactory::getReturn($this->arrayOf, 'Return count of elements'));
+        $countDock->setReturn(PhpDocElementFactory::getReturn('int', 'Return count of elements'));
         $count = new PhpFunction(
             'public',
             'count',
             $this->buildParametersString(
                 array(),
-                false,
+                true,
                 false
             ),
+            'int',
             '  return count($this->' . $this->field->getName() . ');',
             $countDock
         );
