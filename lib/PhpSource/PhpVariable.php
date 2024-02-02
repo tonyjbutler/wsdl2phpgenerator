@@ -21,20 +21,27 @@ class PhpVariable extends PhpElement
     private $comment;
 
     /**
+     * @var string The data type of the variable
+     */
+    private $type;
+
+    /**
      * @var string The value of the initialized value
      */
     private $initialization;
 
     /**
      * @param string        $access
+     * @param string        $type
      * @param string        $identifier
      * @param string        $initialization The value to set the variable at initialization
      * @param PhpDocComment $comment
      */
-    public function __construct($access, $identifier, $initialization = '', PhpDocComment $comment = null)
+    public function __construct($access, $type, $identifier, $initialization = '', PhpDocComment $comment = null)
     {
         $this->comment        = $comment;
         $this->access         = $access;
+        $this->type           = $type;
         $this->identifier     = $identifier;
         $this->initialization = '';
         if (strlen($initialization)) {
@@ -53,7 +60,7 @@ class PhpVariable extends PhpElement
             $ret .= PHP_EOL.$this->getSourceRow($this->comment->getSource());
         }
 
-        $ret .= $this->getSourceRow($this->access.' $'.$this->identifier.$this->initialization.';');
+        $ret .= $this->getSourceRow($this->access.' '.$this->type.' $'.$this->identifier.$this->initialization.';');
 
         return $ret;
     }

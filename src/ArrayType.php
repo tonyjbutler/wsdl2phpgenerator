@@ -55,7 +55,7 @@ class ArrayType extends ComplexType
         $offsetExistsDock = new PhpDocComment();
         $offsetExistsDock->setDescription($description);
         $offsetExistsDock->addParam(PhpDocElementFactory::getParam('mixed', 'offset', 'An offset to check for'));
-        $offsetExistsDock->setReturn(PhpDocElementFactory::getReturn('boolean', 'true on success or false on failure'));
+        $offsetExistsDock->setReturn(PhpDocElementFactory::getReturn('bool', 'True on success or false on failure'));
         $offsetExists = new PhpFunction(
             'public',
             'offsetExists',
@@ -63,10 +63,11 @@ class ArrayType extends ComplexType
                 [
                     'offset' => 'mixed',
                 ],
-                false,
+                true,
                 false
             ),
-            '  return isset($this->'.$this->field->getName().'[$offset]);',
+            'bool',
+            '    return isset($this->'.$this->field->getName().'[$offset]);',
             $offsetExistsDock
         );
         $this->class->addFunction($offsetExists);
@@ -82,10 +83,11 @@ class ArrayType extends ComplexType
                 [
                     'offset' => 'mixed',
                 ],
-                false,
+                true,
                 false
             ),
-            '  return $this->'.$this->field->getName().'[$offset];',
+            $this->arrayOf,
+            '    return $this->'.$this->field->getName().'[$offset];',
             $offsetGetDock
         );
         $this->class->addFunction($offsetGet);
@@ -101,16 +103,17 @@ class ArrayType extends ComplexType
             $this->buildParametersString(
                 [
                     'offset' => 'mixed',
-                    'value'  => $this->arrayOf,
+                    'value'  => 'mixed',
                 ],
-                false,
+                true,
                 false
             ),
-            '  if (!isset($offset)) {'.PHP_EOL.
-            '    $this->'.$this->field->getName().'[] = $value;'.PHP_EOL.
-            '  } else {'.PHP_EOL.
-            '    $this->'.$this->field->getName().'[$offset] = $value;'.PHP_EOL.
-            '  }',
+            'void',
+            '    if (!isset($offset)) {'.PHP_EOL.
+            '        $this->'.$this->field->getName().'[] = $value;'.PHP_EOL.
+            '    } else {'.PHP_EOL.
+            '        $this->'.$this->field->getName().'[$offset] = $value;'.PHP_EOL.
+            '    }',
             $offsetSetDock
         );
         $this->class->addFunction($offsetSet);
@@ -126,10 +129,11 @@ class ArrayType extends ComplexType
                 [
                     'offset' => 'mixed',
                 ],
-                false,
+                true,
                 false
             ),
-            '  unset($this->'.$this->field->getName().'[$offset]);',
+            'void',
+            '    unset($this->'.$this->field->getName().'[$offset]);',
             $offsetUnsetDock
         );
         $this->class->addFunction($offsetUnset);
@@ -148,10 +152,11 @@ class ArrayType extends ComplexType
             'current',
             $this->buildParametersString(
                 [],
-                false,
+                true,
                 false
             ),
-            '  return current($this->'.$this->field->getName().');',
+            $this->arrayOf,
+            '    return current($this->'.$this->field->getName().');',
             $currentDock
         );
         $this->class->addFunction($current);
@@ -164,10 +169,11 @@ class ArrayType extends ComplexType
             'next',
             $this->buildParametersString(
                 [],
-                false,
+                true,
                 false
             ),
-            '  next($this->'.$this->field->getName().');',
+            'void',
+            '    next($this->'.$this->field->getName().');',
             $nextDock
         );
         $this->class->addFunction($next);
@@ -180,26 +186,28 @@ class ArrayType extends ComplexType
             'key',
             $this->buildParametersString(
                 [],
-                false,
+                true,
                 false
             ),
-            '  return key($this->'.$this->field->getName().');',
+            '?string',
+            '    return key($this->'.$this->field->getName().');',
             $keyDock
         );
         $this->class->addFunction($key);
 
         $validDock = new PhpDocComment();
         $validDock->setDescription($description);
-        $validDock->setReturn(PhpDocElementFactory::getReturn('boolean', 'Return the validity of the current position'));
+        $validDock->setReturn(PhpDocElementFactory::getReturn('bool', 'Return the validity of the current position'));
         $valid = new PhpFunction(
             'public',
             'valid',
             $this->buildParametersString(
                 [],
-                false,
+                true,
                 false
             ),
-            '  return $this->key() !== null;',
+            'bool',
+            '    return $this->key() !== null;',
             $validDock
         );
         $this->class->addFunction($valid);
@@ -212,10 +220,11 @@ class ArrayType extends ComplexType
             'rewind',
             $this->buildParametersString(
                 [],
-                false,
+                true,
                 false
             ),
-            '  reset($this->'.$this->field->getName().');',
+            'void',
+            '    reset($this->'.$this->field->getName().');',
             $rewindDock
         );
         $this->class->addFunction($rewind);
@@ -228,16 +237,17 @@ class ArrayType extends ComplexType
 
         $countDock = new PhpDocComment();
         $countDock->setDescription($description);
-        $countDock->setReturn(PhpDocElementFactory::getReturn($this->arrayOf, 'Return count of elements'));
+        $countDock->setReturn(PhpDocElementFactory::getReturn('int', 'Return count of elements'));
         $count = new PhpFunction(
             'public',
             'count',
             $this->buildParametersString(
                 [],
-                false,
+                true,
                 false
             ),
-            '  return count($this->'.$this->field->getName().');',
+            'int',
+            '    return count($this->'.$this->field->getName().');',
             $countDock
         );
         $this->class->addFunction($count);

@@ -233,6 +233,10 @@ class Validator
             case 'datetime':
                 return  '\DateTime';
                 break;
+            case "bool":
+            case "boolean":
+                return 'bool';
+                break;
             default:
                 $typeName = self::validateNamingConvention($typeName);
                 break;
