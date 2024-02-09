@@ -48,7 +48,7 @@ class PhpFunction extends PhpElement
         $this->access     = $access;
         $this->identifier = $identifier;
         $this->params     = $params;
-        $this->return     = !empty($return) ? ': ' . $return : '';
+        $this->return     = !empty($return) ? ': '.$return : '';
         $this->source     = $source;
         $this->comment    = $comment;
     }

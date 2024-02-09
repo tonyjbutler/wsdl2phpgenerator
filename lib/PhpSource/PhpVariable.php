@@ -41,7 +41,7 @@ class PhpVariable extends PhpElement
     {
         $this->comment        = $comment;
         $this->access         = $access;
-        $this->type           = $type;
+        $this->type           = !empty($type) ? ' '.$type : '';
         $this->identifier     = $identifier;
         $this->initialization = '';
         if (strlen($initialization)) {
@@ -60,7 +60,7 @@ class PhpVariable extends PhpElement
             $ret .= PHP_EOL.$this->getSourceRow($this->comment->getSource());
         }
 
-        $ret .= $this->getSourceRow($this->access.' '.$this->type.' $'.$this->identifier.$this->initialization.';');
+        $ret .= $this->getSourceRow($this->access.$this->type.' $'.$this->identifier.$this->initialization.';');
 
         return $ret;
     }

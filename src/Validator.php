@@ -228,6 +228,7 @@ class Validator
             case 'token':
             case 'normalizedstring':
             case 'hexbinary':
+            case 'guid':
                 return 'string';
                 break;
             case 'datetime':
@@ -263,7 +264,7 @@ class Validator
         // We currently only support type hints for arrays and DateTimes.
         // Going forward we could support it for generated types. The challenge here are enums as they are actually
         // strings and not class instances and we have no way of determining whether the type is an enum at this point.
-        if (substr($typeName, -2) == '[]') {
+        if (substr($typeName, -2) == '[]' || $typeName == 'array') {
             $typeHint = 'array';
         } elseif ($typeName == '\DateTime') {
             $typeHint = $typeName;
@@ -277,7 +278,7 @@ class Validator
      *
      * If a name is not unique then append a suffix and numbering.
      *
-     * @param $name the name to test
+     * @param string   $name The name to test
      * @param callable $function A callback which should return true if the element is unique. Otherwise false.
      * @param string   $suffix   a suffix to append between the name and numbering
      *

@@ -91,7 +91,7 @@ class ComplexType extends Type
 
                 if (!$member->getNullable()) {
                     $constructorComment->addParam(PhpDocElementFactory::getParam($type, $name, ''));
-                    $constructorParameters[$name] = Validator::validateTypeHint($type) ?? $type;
+                    $constructorParameters[$name] = Validator::validateTypeHint($type);
                 }
             }
             $constructorSource .= '  parent::__construct('.$this->buildParametersString($constructorParameters, false).');'.PHP_EOL;
@@ -101,21 +101,26 @@ class ComplexType extends Type
         foreach ($this->members as $member) {
             $type     = Validator::validateType($member->getType());
             $name     = Validator::validateAttribute($member->getName());
-            $typeHint = Validator::validateTypeHint($type) ?? $type;
-            if ($type == '\DateTime') {
-                $vartype = '\DateTime|string|null';
-                $vartypeHint = '\DateTime|string|null';
-            } else {
-                $vartype = $type . '|null';
-                $vartypeHint = '?' . $typeHint;
-            }
+            $typeHint = Validator::validateTypeHint($type);
 
+            $varType = $type.'|null';
+            $varHint = !empty($typeHint) ? '?'.$typeHint : '';
+            $varInit = 'null';
+            if ($typeHint == 'array') {
+                $varType = $type;
+                $varHint = $typeHint;
+                $varInit = '[]';
+            } else if ($typeHint == '\DateTime') {
+                $varType = '\DateTime|string|null';
+                $varHint = '\DateTime|string|null';
+            }
             $comment = new PhpDocComment();
-            $comment->setVar(PhpDocElementFactory::getVar($vartype, $name, ''));
-            $var = new PhpVariable('protected', $vartypeHint, $name, 'null', $comment);
+            $comment->setVar(PhpDocElementFactory::getVar($varType, $name, ''));
+            $var = new PhpVariable('protected', $varHint, $name, $varInit, $comment);
             $this->class->addVariable($var);
 
             if (!$member->getNullable()) {
+                $nullable = false;
                 if ($type == '\DateTime') {
                     if ($this->config->get('constructorParamsDefaultToNull')) {
                         $constructorSource .= '  $this->'.$name.' = $'.$name.' ? $'.$name.'->format(\DateTime::ATOM) : null;'.PHP_EOL;
@@ -127,6 +132,8 @@ class ComplexType extends Type
                 }
                 $constructorComment->addParam(PhpDocElementFactory::getParam($type, $name, ''));
                 $constructorParameters[$name] = $typeHint;
+            } else {
+                $nullable = true;
             }
 
             if ($type == '\DateTime') {
@@ -139,20 +146,24 @@ class ComplexType extends Type
                     .'            return false;'.PHP_EOL
                     .'        }'.PHP_EOL
                     .'    }'.PHP_EOL;
-                $getterReturn = '\DateTime|bool|null';
+                $getterReturnType = '\DateTime|bool|null';
                 $getterReturnHint = '\DateTime|bool|null';
             } else {
                 $getterCode = '    return $this->'.$name.';'.PHP_EOL;
-                $getterReturn = $type;
-                $getterReturnHint = $typeHint;
+                $getterReturnType = $type;
+                $getterReturnHint = $typeHint ?? '';
+                if ($nullable && !empty($typeHint)) {
+                    $getterReturnType = $getterReturnType.'|null';
+                    $getterReturnHint = '?'.$getterReturnHint;
+                }
             }
             $getterComment = new PhpDocComment();
-            $getterComment->setReturn(PhpDocElementFactory::getReturn($getterReturn, ''));
+            $getterComment->setReturn(PhpDocElementFactory::getReturn($getterReturnType, ''));
             $getter      = new PhpFunction('public', 'get'.ucfirst($name), '', $getterReturnHint, $getterCode, $getterComment);
             $accessors[] = $getter;
 
             if ($type == '\DateTime') {
-                if ($member->getNullable()) {
+                if ($nullable) {
                     $setterCode = '    if ($'.$name.' == null) {'.PHP_EOL
                         .'        $this->'.$name.' = null;'.PHP_EOL
                         .'    } else {'.PHP_EOL
@@ -165,19 +176,25 @@ class ComplexType extends Type
                 $setterCode = '    $this->'.$name.' = $'.$name.';'.PHP_EOL;
             }
             $setterCode .= '    return $this;'.PHP_EOL;
+            $setterParamType = $type;
+            $setterParamHint = $typeHint ?? '';
+            if ($nullable && !empty($typeHint)) {
+                $setterParamType = $setterParamType.'|null';
+                $setterParamHint = '?'.$setterParamHint;
+            }
             $setterComment = new PhpDocComment();
-            $setterComment->addParam(PhpDocElementFactory::getParam($type, $name, ''));
+            $setterComment->addParam(PhpDocElementFactory::getParam($setterParamType, $name, ''));
             $setterComment->setReturn(PhpDocElementFactory::getReturn($this->phpIdentifier, ''));
             $setter = new PhpFunction(
                 'public',
                 'set'.ucfirst($name),
                 $this->buildParametersString(
-                    [$name => $typeHint],
+                    [$name => $setterParamHint],
                     true,
                     // If the type of a member is nullable we should allow passing null to the setter. If the type
                     // of the member is a class and not a primitive this is only possible if setter parameter has
                     // a default null value. We can detect whether the type is a class by checking the type hint.
-                    $member->getNullable() && !empty(Validator::validateTypeHint($type))
+                    $nullable && !empty($typeHint)
                 ),
                 $this->phpIdentifier,
                 $setterCode,
